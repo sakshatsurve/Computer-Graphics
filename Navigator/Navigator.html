@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+//Attributes
+attribute  	vec4 	vPosition;
+attribute  	vec4 	vColor;
+attribute 	vec3 	vNormal;
+attribute 	vec2 	vTexCoord;
+
+varying 	vec4 	fColor;
+varying 	vec2 	fTexCoord;
+
+uniform 	mat4 	modelView;
+uniform 	mat4 	projection;
+uniform 	bool 	lightflag;
+uniform 	vec4 	ambientProduct, diffuseProduct, specularProduct;
+uniform 	vec4 	lightPosition;
+uniform 	float 	shininess;
+uniform 	vec4 	ambientProduct1, diffuseProduct1, specularProduct1;
+uniform 	vec4 	lightPosition1;
+uniform 	vec4 	ambientProduct2, diffuseProduct2, specularProduct2;
+uniform 	vec4 	lightPosition2;
+uniform 	vec4 	ambientProduct3, diffuseProduct3, specularProduct3;
+uniform 	vec4 	lightPosition3;
+
+void main() 
+{
+	vec3 pos = -(modelView * vPosition).xyz;
+    vec3 light = lightPosition.xyz;
+    vec3 L = normalize( light - pos );
+
+    vec3 E = normalize( -pos );
+    vec3 H = normalize( L + E );
+    
+    vec4 NN = vec4(vNormal,0);
+
+    // Transform vertex normal into eye coordinates
+    vec3 N = normalize( (modelView*NN).xyz);
+
+    // Compute terms in the illumination equation
+    vec4 ambient1 = ambientProduct;
+
+    float Kd = max( dot(L, N), 0.0 );
+    vec4  diffuse1 = Kd*diffuseProduct;
+
+    float Ks = pow( max(dot(N, H), 0.0), shininess );
+    vec4  specular1 = Ks * specularProduct;
+    
+    if( dot(L, N) < 0.0 ) {
+    specular1 = vec4(0.0, 0.0, 0.0, 1.0);
+    } 
+
+
+	//Light source 2
+    light = lightPosition1.xyz;
+    L = normalize( light - pos );
+
+    E = normalize( -pos );
+    H = normalize( L + E );
+    
+    NN = vec4(vNormal,0);
+
+    // Transform vertex normal into eye coordinates
+    N = normalize( (modelView*NN).xyz);
+
+    // Compute terms in the illumination equation
+    vec4 ambient2 = ambientProduct1;
+
+    Kd = max( dot(L, N), 0.0 );
+    vec4 diffuse2 = Kd*diffuseProduct1;
+
+    Ks = pow( max(dot(N, H), 0.0), shininess );
+    vec4 specular2 = Ks * specularProduct1;
+    
+    if( dot(L, N) < 0.0 ) {
+    specular2 = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+
+	//Light source 3
+    light = lightPosition2.xyz;
+    L = normalize( light - pos );
+
+    
+    E = normalize( -pos );
+    H = normalize( L + E );
+    
+    NN = vec4(vNormal,0);
+
+    // Transform vertex normal into eye coordinates
+    N = normalize( (modelView*NN).xyz);
+
+    // Compute terms in the illumination equation
+    vec4 ambient3 = ambientProduct2;
+
+    Kd = max( dot(L, N), 0.0 );
+    vec4 diffuse3 = Kd*diffuseProduct2;
+
+    Ks = pow( max(dot(N, H), 0.0), shininess );
+    vec4 specular3 = Ks * specularProduct2;
+    
+    if( dot(L, N) < 0.0 ) {
+    specular3 = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+
+	//Light source 4
+    light = lightPosition3.xyz;
+    L = normalize( light - pos );
+   
+    E = normalize( -pos );
+    H = normalize( L + E );
+    
+    NN = vec4(vNormal,0);
+
+    // Transform vertex normal into eye coordinates   
+    N = normalize( (modelView*NN).xyz);
+
+    // Compute terms in the illumination equation
+    vec4 ambient4 = ambientProduct3;
+
+    Kd = max( dot(L, N), 0.0 );
+    vec4 diffuse4 = Kd*diffuseProduct3;
+
+    Ks = pow( max(dot(N, H), 0.0), shininess );
+    vec4 specular4 = Ks * specularProduct2;
+    
+    if( dot(L, N) < 0.0 ) {
+    specular4 = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+    vec4 ambient = ambient1 + ambient2 + ambient3 + ambient4; 
+    vec4 diffuse = diffuse1 + diffuse2 + diffuse3 + diffuse4; 
+    vec4 specular = specular1 + specular2 + specular3 + specular4 ;
+    
+	if(lightflag)
+    {
+    	fColor = ambient + diffuse + specular;
+    	fColor.a = 1.0;
+    }
+    else
+    {
+    	fColor = ambient;
+    }
+	
+    gl_Position = projection*modelView*vPosition;
+	fTexCoord = vTexCoord;
+    gl_Position = projection*modelView*vPosition;
+} 
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+
+varying 	vec4 	fColor;
+varying  	vec2 	fTexCoord;
+uniform 	sampler2D texture;
+
+void
+main()
+{
+    gl_FragColor = fColor * texture2D( texture, fTexCoord );
+}
+</script>
+
+<script type="text/javascript" src="Common/webgl-utils.js"></script>
+<script type="text/javascript" src="Common/initShaders.js"></script>
+<script type="text/javascript" src="Common/MV.js"></script>
+<script type="text/javascript" src="Common/textureCoordinates.js"></script>
+<script type="text/javascript" src="Common/vertices.js"></script>
+<script type="text/javascript" src="Navigator.js"></script>
+
+<body>
+<canvas id="gl-canvas" width="1440" height="1440" style="border: solid black 1px">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+<br>
+<button id="switch">Light</button>
+</body>
+</html>
